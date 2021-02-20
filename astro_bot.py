@@ -53,7 +53,7 @@ for event in longpoll.listen():
 
         msg = event.object['text'].lower()
 
-        if msg in ('команды', 'начать'):
+        if msg in ('команды', 'начать', 'привет', 'старт'):
             send (event, commands)
 
         elif msg in ('test', 'тест'):
