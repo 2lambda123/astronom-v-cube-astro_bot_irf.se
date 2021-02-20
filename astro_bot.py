@@ -7,6 +7,7 @@ from vk_api.utils import get_random_id
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from astro_bot_vars import *
+from main_token import *
 
 print ('Бот запущен...')
 
