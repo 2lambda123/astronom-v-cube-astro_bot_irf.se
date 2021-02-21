@@ -1,6 +1,9 @@
 __pycache__/
+datebase/
 main_token.py
 cod.py
 Primary.png
 Secondary (DMI).png
 K&Q index.png
+*.json
+!astro_bot_vars.json
