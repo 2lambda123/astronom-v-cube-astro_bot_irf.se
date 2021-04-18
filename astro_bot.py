@@ -10,8 +10,8 @@ from vk_api import VkApi
 from vk_api.utils import get_random_id
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
 from vk_api.keyboard import VkKeyboard, VkKeyboardColor
-from astro_bot_vars import *
 from main_token import *
+from astro_bot_vars import *
 
 print ('Бот запущен...')
 
@@ -27,8 +27,6 @@ vk_session = VkApi(token = main_token)
 longpoll = VkBotLongPoll(vk_session, '202712381')
 vk = vk_session.get_api()
 
-# with open("astro_bot_vars.json", "r") as file:
-#     data = json.load(file)
 
 # функция отправки текстового сообщения
 def send(event, msg):
@@ -49,6 +47,31 @@ def send_attachment(event, image):
     else:
         print(f'Отправил фото для пользователя с id: {event.obj["peer_id"]}')
         return vk.messages.send(random_id = get_random_id(), peer_id = event.obj['peer_id'], keyboard = keyboard.get_keyboard(), attachment = image)
+
+# функция рассылки оповещения
+def sending(degree):
+    with open("database.json", "r", encoding='utf-8') as file:
+        data = json.load(file)
+
+    x = [dct_ for dct_ in data if dct_['Q_degree'] == degree]
+    list = []
+    out = []
+    for z in x:
+        for key in z.values():
+            list.append(key)
+
+    for i in range(len(list)):
+        if i % 2:
+            out.append(list[i])
+    print(list)
+    print(out)
+    print(f'Ответил: "График достиг уровня {degree}"')
+
+    # return vk.messages.send(random_id = get_random_id(), peer_id = 223065274, keyboard = keyboard.get_keyboard(), message = 'Не ссы я тебя сделал бета тестером все впорядки')
+
+    for id_one in out:
+        return vk.messages.send(random_id = get_random_id(), peer_id = id_one, keyboard = keyboard.get_keyboard(), message = f'График достиг уровня {degree}')
+
 
 # функция проверки графика и высылания ответа с анализом
 def graphs_analise(degree):
@@ -87,8 +110,8 @@ def graphs_analise(degree):
 
     if color != sample_color:
 
-        print(f'Ответил: "График достиг уровня {degree}"')
-        return vk.messages.send(random_id = get_random_id(), peer_id = 557660245, keyboard = keyboard.get_keyboard(), message = f'График достиг уровня {degree}')
+        sending(1)
+        sending(2)
 
 # функция отправки результата анализа по базам данных
 def analise_sender():
@@ -99,11 +122,11 @@ def analise_sender():
         graphs_analise(3)
         graphs_analise(4)
         graphs_analise(5)
-        time.sleep(450)
+        time.sleep(900)
 
 # функция прослушивания longpoll и ответа на ключевые слова
 def job_longpool():
-    print('функция лонгпул робит')
+    print('Функция прослушивания longpool запущена')
     for event in longpoll.listen():
         if event.type == VkBotEventType.MESSAGE_NEW:
             print('-' * 30)
