@@ -67,10 +67,8 @@ def sending(degree):
     print(out)
     print(f'Ответил: "График достиг уровня {degree}"')
 
-    # return vk.messages.send(random_id = get_random_id(), peer_id = 223065274, keyboard = keyboard.get_keyboard(), message = 'Не ссы я тебя сделал бета тестером все впорядки')
-
     for id_one in out:
-        return vk.messages.send(random_id = get_random_id(), peer_id = id_one, keyboard = keyboard.get_keyboard(), message = f'График достиг уровня {degree}')
+        vk.messages.send(random_id = get_random_id(), peer_id = id_one, keyboard = keyboard.get_keyboard(), message = f'&#10071; Внимание! График достиг уровня {degree} &#10071;')
 
 
 # функция проверки графика и высылания ответа с анализом
@@ -110,8 +108,7 @@ def graphs_analise(degree):
 
     if color != sample_color:
 
-        sending(1)
-        sending(2)
+        sending(degree)
 
 # функция отправки результата анализа по базам данных
 def analise_sender():
@@ -131,6 +128,7 @@ def job_longpool():
         if event.type == VkBotEventType.MESSAGE_NEW:
             print('-' * 30)
             print(f'Сообщение получено от id: ' + str({event.obj["peer_id"]}) )
+            print('-' * 30)
             print('Текст сообщения: ' + str(event.object['text']))
             print('-' * 30)
 
@@ -141,6 +139,12 @@ def job_longpool():
 
             elif msg in ('test', 'тест'):
                 send (event, 'Бот работает успешно!')
+
+            elif msg in ('уровни', 'уровни q', 'уровень', 'уровень q', 'q'):
+                send (event, degree_Q)
+
+            elif msg in ('рассылка', 'подписка', 'подписка на рассылку'):
+                send (event, 'Какой уровень Q вас интересует? (Узнать уровень Q для вашей широты можно, написав мне слово "Уровни")')
 
             elif msg == 'primary':
                 img = urllib.request.urlopen(url_picture_1).read()
