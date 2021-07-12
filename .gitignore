@@ -1,11 +1,6 @@
 __pycache__/
-main_token.py
-cod.py
+.mypy_cache
+secret_data.py
 Primary.png
 Secondary (DMI).png
 K&Q index.png
-*.json
-!astro_bot_vars.json
-!database_example.json
-test.py
-testing.py
