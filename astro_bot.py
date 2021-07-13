@@ -71,11 +71,38 @@ def delete_from_db(id, q_degree):
         cursor.execute(delete_query)
         connection.commit()
         print("Запись успешно удалена")
-        vk.messages.send(random_id = get_random_id(), peer_id = id, keyboard = keyboard.get_keyboard(), message = 'Вы исключены из рассылки! Больше вы не будете получать уведомления')
+        vk.messages.send(random_id = get_random_id(), peer_id = id, keyboard = keyboard.get_keyboard(), message = 'Вы исключены из рассылки! Больше вы не будете получать уведомления об этом уровне Q')
 
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
         vk.messages.send(random_id = get_random_id(), peer_id = id, keyboard = keyboard.get_keyboard(), message = 'Произошла ошибка! Вероятно, вы не подписаны на данный уровень Q')
+
+    finally:
+        if connection:
+            cursor.close()
+            connection.close()
+            print("Соединение с PostgreSQL закрыто")
+
+
+# функция отключения пользователя от базы данных
+def delete_from_db_for_id(id):
+    try:
+        # Подключение к существующей базе данных
+        connection = psycopg2.connect(user = user, password = password, host = host, port = port, database = database)
+
+        # Курсор для выполнения операций с базой данных
+        cursor = connection.cursor()
+
+        # Выполнение SQL-запроса для удаления значения из таблицы
+        delete_query = f" DELETE FROM users WHERE id = {id} "
+        cursor.execute(delete_query)
+        connection.commit()
+        print("Запись успешно удалена")
+        vk.messages.send(random_id = get_random_id(), peer_id = id, keyboard = keyboard.get_keyboard(), message = 'Вы исключены из рассылки! Больше вы не будете получать уведомления')
+
+    except (Exception, Error) as error:
+        print("Ошибка при работе с PostgreSQL", error)
+        vk.messages.send(random_id = get_random_id(), peer_id = id, keyboard = keyboard.get_keyboard(), message = 'Произошла ошибка!')
 
     finally:
         if connection:
@@ -182,24 +209,24 @@ def graphs_analise(degree):
     sample_color = str((255, 255, 255))
 
     if color != sample_color:
-        print('Вижу не белый')
         sending(degree)
-
-    else:
-        print('Белый вижу')
 
 
 # функция отправки результата анализа по базам данных
 def analise_sender():
-    while True:
-        print('Функция анализа работает нормально')
-        graphs_analise(1)
-        graphs_analise(2)
-        graphs_analise(3)
-        graphs_analise(4)
-        graphs_analise(5)
-        time.sleep(900)
+    print('Функция анализа запущена')
 
+    graphs_analise(1)
+    graphs_analise(2)
+    graphs_analise(3)
+    graphs_analise(4)
+    graphs_analise(5)
+    graphs_analise(6)
+    graphs_analise(7)
+    graphs_analise(8)
+    graphs_analise(9)
+
+    print('Функция анализа завершена')
 
 # функция прослушивания longpoll и ответа на ключевые слова
 def job_longpool():
@@ -239,6 +266,9 @@ def job_longpool():
 
             elif msg in ('отписаться от 1', 'отписаться от 2', 'отписаться от 3', 'отписаться от 4', 'отписаться от 5', 'отписаться от 6', 'отписаться от 7', 'отписаться от 8', 'отписаться от 9'):
                 delete_from_db(id, msg[-1])
+
+            elif msg in ('stop', 'стоп'):
+                delete_from_db_for_id(id)
 
             elif msg == 'primary':
                 img = urllib.request.urlopen(url_picture_1).read()
@@ -323,11 +353,21 @@ def job_longpool():
                 if not event.from_chat:
                     send(event, 'К сожалению, я не понимаю...(')
 
-th_1 = Thread(target = analise_sender)
-th_2 = Thread(target = job_longpool)
+
+th_1 = Thread(target = job_longpool)
+
+def run_threaded(job_func):
+    job_thread = Thread(target = job_func)
+    job_thread.start()
+
+schedule.every().hour.at(":01").do(run_threaded, analise_sender)
+schedule.every().hour.at(":16").do(run_threaded, analise_sender)
+schedule.every().hour.at(":31").do(run_threaded, analise_sender)
+schedule.every().hour.at(":46").do(run_threaded, analise_sender)
 
 # функция запуска многопоточной работы бота
 if __name__ == '__main__':
     th_1.start()
-    th_2.start()
-# schedule.every().minute.at(":17").do(job)
+    while True:
+        schedule.run_pending()
+        time.sleep(30)
