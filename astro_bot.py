@@ -67,6 +67,22 @@ keyboard_four.add_button('9', color=VkKeyboardColor.PRIMARY)
 keyboard_four.add_line()  # Переход на вторую строку
 keyboard_four.add_button('В начало', color=VkKeyboardColor.NEGATIVE)
 
+keyboard_five = VkKeyboard()
+
+keyboard_five.add_button('Про 1', color=VkKeyboardColor.SECONDARY)
+keyboard_five.add_button('Про 2', color=VkKeyboardColor.SECONDARY)
+keyboard_five.add_button('Про 3', color=VkKeyboardColor.SECONDARY)
+keyboard_five.add_line()  # Переход на вторую строку
+keyboard_five.add_button('Про 4', color=VkKeyboardColor.POSITIVE)
+keyboard_five.add_button('Про 5', color=VkKeyboardColor.POSITIVE)
+keyboard_five.add_button('Про 6', color=VkKeyboardColor.POSITIVE)
+keyboard_five.add_line()  # Переход на вторую строку
+keyboard_five.add_button('Про 7', color=VkKeyboardColor.PRIMARY)
+keyboard_five.add_button('Про 8', color=VkKeyboardColor.PRIMARY)
+keyboard_five.add_button('Про 9', color=VkKeyboardColor.PRIMARY)
+keyboard_five.add_line()  # Переход на вторую строку
+keyboard_five.add_button('В начало', color=VkKeyboardColor.NEGATIVE)
+
 vk_session = VkApi(token = main_token)
 # longpoll = VkBotLongPoll(vk_session, '202712381')
 vk = vk_session.get_api()
@@ -370,9 +386,9 @@ def job_longpool():
                         insert_into_db(id, msg, keyboard)
 
                     elif msg in ('отписка', 'отписаться', 'отписка от рассылки'):
-                        send (event, 'Про какой уровень Q вам больше не интересно получать информацию? (напишите "отписаться от {цифра}")', keyboard)
+                        send (event, 'Про какой уровень Q вам больше не интересно получать информацию?', keyboard_five)
 
-                    elif msg in ('отписаться от 1', 'отписаться от 2', 'отписаться от 3', 'отписаться от 4', 'отписаться от 5', 'отписаться от 6', 'отписаться от 7', 'отписаться от 8', 'отписаться от 9'):
+                    elif msg in ('отписаться от 1', 'отписаться от 2', 'отписаться от 3', 'отписаться от 4', 'отписаться от 5', 'отписаться от 6', 'отписаться от 7', 'отписаться от 8', 'отписаться от 9', 'про 1', 'про 2', 'про 3', 'про 4', 'про 5', 'про 6', 'про про7', 'про 8', 'про 9', ):
                         delete_from_db(id, msg[-1], keyboard)
 
                     elif msg in ('stop', 'стоп'):
