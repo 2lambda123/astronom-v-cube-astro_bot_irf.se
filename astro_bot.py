@@ -8,6 +8,9 @@ from psycopg2 import Error
 from threading import Thread
 from PIL import Image
 import urllib.request
+import urllib3
+import requests
+import socket
 from vk_api import VkApi
 from vk_api.utils import get_random_id
 from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
@@ -15,23 +18,62 @@ from vk_api.keyboard import VkKeyboard, VkKeyboardColor
 from secret_data import *
 from astro_bot_vars import *
 
+socket.setdefaulttimeout(60)
+
 print ('Бот запущен...')
 
 keyboard = VkKeyboard(one_time = True)
 
-keyboard.add_button('Primary', color=VkKeyboardColor.SECONDARY)
-keyboard.add_button('Secondary (DMI)', color=VkKeyboardColor.POSITIVE)
+keyboard.add_button('Графики', color=VkKeyboardColor.SECONDARY)
+keyboard.add_button('Команды', color=VkKeyboardColor.POSITIVE)
 keyboard.add_line()  # Переход на вторую строку
-keyboard.add_button('K&Q index', color=VkKeyboardColor.NEGATIVE)
-keyboard.add_button('All', color=VkKeyboardColor.PRIMARY)
+keyboard.add_button('Сейчас', color=VkKeyboardColor.PRIMARY)
+
+keyboard_two = VkKeyboard()
+
+keyboard_two.add_button('Подписаться', color=VkKeyboardColor.POSITIVE)
+keyboard_two.add_button('Отписаться', color=VkKeyboardColor.SECONDARY)
+keyboard_two.add_button('Стоп', color=VkKeyboardColor.NEGATIVE)
+keyboard_two.add_line()  # Переход на вторую строку
+keyboard_two.add_button('Уровни Q', color=VkKeyboardColor.PRIMARY)
+keyboard_two.add_button('Графики', color=VkKeyboardColor.PRIMARY)
+keyboard_two.add_line()  # Переход на вторую строку
+keyboard_two.add_button('Баг-репорт', color=VkKeyboardColor.NEGATIVE)
+keyboard_two.add_button('В начало', color=VkKeyboardColor.NEGATIVE)
+
+keyboard_three = VkKeyboard()
+
+keyboard_three.add_button('Primary', color=VkKeyboardColor.SECONDARY)
+keyboard_three.add_button('Secondary (DMI)', color=VkKeyboardColor.POSITIVE)
+keyboard_three.add_line()  # Переход на вторую строку
+keyboard_three.add_button('K&Q index', color=VkKeyboardColor.NEGATIVE)
+keyboard_three.add_button('All graphs', color=VkKeyboardColor.PRIMARY)
+keyboard_three.add_line()  # Переход на вторую строку
+keyboard_three.add_button('В начало', color=VkKeyboardColor.NEGATIVE)
+
+keyboard_four = VkKeyboard()
+
+keyboard_four.add_button('1', color=VkKeyboardColor.SECONDARY)
+keyboard_four.add_button('2', color=VkKeyboardColor.SECONDARY)
+keyboard_four.add_button('3', color=VkKeyboardColor.SECONDARY)
+keyboard_four.add_line()  # Переход на вторую строку
+keyboard_four.add_button('4', color=VkKeyboardColor.POSITIVE)
+keyboard_four.add_button('5', color=VkKeyboardColor.POSITIVE)
+keyboard_four.add_button('6', color=VkKeyboardColor.POSITIVE)
+keyboard_four.add_line()  # Переход на вторую строку
+keyboard_four.add_button('7', color=VkKeyboardColor.PRIMARY)
+keyboard_four.add_button('8', color=VkKeyboardColor.PRIMARY)
+keyboard_four.add_button('9', color=VkKeyboardColor.PRIMARY)
+keyboard_four.add_line()  # Переход на вторую строку
+keyboard_four.add_button('В начало', color=VkKeyboardColor.NEGATIVE)
 
 vk_session = VkApi(token = main_token)
-longpoll = VkBotLongPoll(vk_session, '202712381')
+# longpoll = VkBotLongPoll(vk_session, '202712381')
 vk = vk_session.get_api()
 
 
 # функция добавления пользователя в рассылку
-def insert_into_db(id, q_degree):
+def insert_into_db(id, q_degree, keyboard):
     try:
         # Подключение к существующей базе данных
         connection = psycopg2.connect(user = user, password = password, host = host, port = port, database = database)
@@ -58,7 +100,7 @@ def insert_into_db(id, q_degree):
 
 
 # функция удаления пользователя из базы данных
-def delete_from_db(id, q_degree):
+def delete_from_db(id, q_degree, keyboard):
     try:
         # Подключение к существующей базе данных
         connection = psycopg2.connect(user = user, password = password, host = host, port = port, database = database)
@@ -85,7 +127,7 @@ def delete_from_db(id, q_degree):
 
 
 # функция отключения пользователя от базы данных
-def delete_from_db_for_id(id):
+def delete_from_db_for_id(id, keyboard):
     try:
         # Подключение к существующей базе данных
         connection = psycopg2.connect(user = user, password = password, host = host, port = port, database = database)
@@ -142,25 +184,25 @@ def search_into_db(q_degree):
             print("Соединение с PostgreSQL закрыто")
 
 # функция отправки текстового сообщения
-def send(event, msg):
+def send(event, msg, kbd):
 
     if event.obj['peer_id'] > 2e9:       #если чат
         print(f'Ответил: "{msg}" для беседы с id: {event.obj["peer_id"]}')
         return vk.messages.send(random_id = get_random_id(), peer_id = event.obj['peer_id'], message = msg)
     else:
         print(f'Ответил: "{msg}" для пользователя с id: {event.obj["peer_id"]}')
-        return vk.messages.send(random_id = get_random_id(), peer_id = event.obj['peer_id'], keyboard = keyboard.get_keyboard(), message = msg)
+        return vk.messages.send(random_id = get_random_id(), peer_id = event.obj['peer_id'], keyboard = kbd.get_keyboard(), message = msg)
 
 
 # функция отправки сообщения с фото
-def send_attachment(event, image):
+def send_attachment(event, image, kbd):
 
     if event.obj['peer_id'] > 2e9:       #если чат
         print(f'Отправил фото для беседы с id: {event.obj["peer_id"]}')
         return vk.messages.send(random_id = get_random_id(), peer_id = event.obj['peer_id'], attachment = image)
     else:
         print(f'Отправил фото для пользователя с id: {event.obj["peer_id"]}')
-        return vk.messages.send(random_id = get_random_id(), peer_id = event.obj['peer_id'], keyboard = keyboard.get_keyboard(), attachment = image)
+        return vk.messages.send(random_id = get_random_id(), peer_id = event.obj['peer_id'], keyboard = kbd.get_keyboard(), attachment = image)
 
 
 # функция рассылки оповещения
@@ -176,7 +218,7 @@ def sending(degree):
 # функция проверки графика и высылания ответа с анализом
 def graphs_analise(degree):
 
-    img = urllib.request.urlopen(url_picture_3).read()
+    img = urllib.request.urlopen(url_picture_3, timeout = 30).read()
     out = open("K&Q index.png", "wb")
     out.write(img)
     out.close()
@@ -212,6 +254,52 @@ def graphs_analise(degree):
         sending(degree)
 
 
+# функция проверки графика в данный момент
+def graphs_analise_now():
+
+    img = urllib.request.urlopen(url_picture_3, timeout = 30).read()
+    out = open("K&Q index.png", "wb")
+    out.write(img)
+    out.close()
+
+    image = Image.open("K&Q index.png") # Открываем изображение
+    pix = image.load()            # Выгружаем значения пикселей
+
+    x = 1185
+    y_1 = 145
+    y_2 = 131
+    y_3 = 118
+    y_4 = 105
+    y_5 = 91
+    y_6 = 78
+    y_7 = 65
+    y_8 = 51
+    y_9 = 38
+
+    sample_color = str((255, 255, 255))
+
+    if str((pix[x, y_9])) != sample_color:
+        return 9
+    elif str((pix[x, y_8])) != sample_color:
+        return 8
+    elif str((pix[x, y_7])) != sample_color:
+        return 7
+    elif str((pix[x, y_6])) != sample_color:
+        return 6
+    elif str((pix[x, y_5])) != sample_color:
+        return 5
+    elif str((pix[x, y_4])) != sample_color:
+        return 4
+    elif str((pix[x, y_3])) != sample_color:
+        return 3
+    elif str((pix[x, y_2])) != sample_color:
+        return 2
+    elif str((pix[x, y_1])) != sample_color:
+        return 1
+    else:
+        return 0
+
+
 # функция отправки результата анализа по базам данных
 def analise_sender():
     print('Функция анализа запущена')
@@ -231,127 +319,152 @@ def analise_sender():
 # функция прослушивания longpoll и ответа на ключевые слова
 def job_longpool():
     print('Функция прослушивания longpool запущена')
-    for event in longpoll.listen():
-        if event.type == VkBotEventType.MESSAGE_NEW:
-            print('-' * 30)
-            print(f'Сообщение получено от id: ' + str({event.obj["peer_id"]}) )
-            print('-' * 30)
-            print('Текст сообщения: ' + str(event.object['text']))
-            print('-' * 30)
+    longpoll = VkBotLongPoll(vk_session, '202712381')
+    while True:
+        try:
+            for event in longpoll.listen():
+                if event.type == VkBotEventType.MESSAGE_NEW:
+                    print('-' * 30)
+                    print(f'Сообщение получено от id: ' + str({event.obj["peer_id"]}) )
+                    print('-' * 30)
+                    print('Текст сообщения: ' + str(event.object['text']))
+                    print('-' * 30)
 
-            msg = event.object['text'].lower()
-            id = event.obj["peer_id"]
+                    msg = event.object['text'].lower()
+                    id = event.obj["peer_id"]
 
-            if msg in ('команды', 'начать', 'привет', 'старт'):
-                send (event, commands)
+                    if msg in ('начать', 'привет', 'старт'):
+                        send (event, hello, keyboard)
 
-            elif msg in ('test', 'тест'):
-                send (event, 'Бот работает успешно!')
+                    elif msg in ('test', 'тест'):
+                        send (event, 'Бот работает успешно!', keyboard)
 
-            elif 'помощь' in msg or 'help' in msg:
-                vk.messages.send(random_id = get_random_id(), peer_id = 557660245, message = (f'&#10071;БАГ-РЕПОРТ&#10071; {event}'))
-                send (event, 'Ваш баг-репорт отправлен разработчику бота, в ближайшее время он займется исправлением неисправности. Спасибо :)')
+                    elif msg in ('команды', 'commands'):
+                        send (event, commands, keyboard_two)
 
-            elif msg in ('уровни', 'уровни q', 'уровень', 'уровень q', 'q'):
-                send (event, degree_Q)
+                    elif msg in ('сейчас', 'now'):
+                        number = graphs_analise_now()
+                        send (event, f"Текущий уровень Q - {number}", keyboard)
 
-            elif msg in ('рассылка', 'подписка', 'подписка на рассылку', 'подписаться'):
-                send (event, 'Какой уровень Q вас интересует? (Узнать уровень Q для вашей широты можно, написав мне слово "Уровни")')
+                    elif msg in ('в начало'):
+                        number = graphs_analise_now()
+                        send (event, f"Текущий уровень Q - {number}", keyboard)
 
-            elif msg in ('1', '2', '3', '4', '5', '6', '7', '8', '9'):
-                insert_into_db(id, msg)
+                    elif msg in ('багрепорт', 'баг-репорт', 'баг'):
+                        send (event, 'Если с ботом возникли какие-то проблемы, вы можете сообщить о них разработчику. Для этого напишите в одном сообщении: сначала слово "помощь", а затем опишите неполадку. Ваше сообщение будет отправлено разработчику бота', keyboard)
 
-            elif msg in ('отписка', 'отписаться', 'отписка от рассылки'):
-                send (event, 'Про какой уровень Q вам больше не интересно получать информацию? (напишите "отписаться от {цифра}")')
+                    elif 'помощь' in msg or 'help' in msg:
+                        vk.messages.send(random_id = get_random_id(), peer_id = 557660245, message = (f'&#10071;БАГ-РЕПОРТ&#10071; {event}'))
+                        send (event, 'Ваш баг-репорт отправлен разработчику бота, в ближайшее время он займется исправлением неисправности. Спасибо :)', keyboard)
 
-            elif msg in ('отписаться от 1', 'отписаться от 2', 'отписаться от 3', 'отписаться от 4', 'отписаться от 5', 'отписаться от 6', 'отписаться от 7', 'отписаться от 8', 'отписаться от 9'):
-                delete_from_db(id, msg[-1])
+                    elif msg in ('уровни', 'уровни q', 'уровень', 'уровень q', 'q'):
+                        send (event, degree_Q, keyboard_four)
 
-            elif msg in ('stop', 'стоп'):
-                delete_from_db_for_id(id)
+                    elif msg in ('график', 'графики'):
+                        send (event, "Какой график вас интересует?", keyboard_three)
 
-            elif msg == 'primary':
-                img = urllib.request.urlopen(url_picture_1).read()
-                out = open("Primary.png", "wb")
-                out.write(img)
-                out.close()
-                upload = vk_api.VkUpload(vk)
-                photo = upload.photo_messages('Primary.png')
-                owner_id = photo[0]['owner_id']
-                photo_id = photo[0]['id']
-                access_key = photo[0]['access_key']
-                attachment = f'photo{owner_id}_{photo_id}_{access_key}'
+                    elif msg in ('рассылка', 'подписка', 'подписка на рассылку', 'подписаться'):
+                        send (event, 'Какой уровень Q вас интересует? (Узнать уровень Q для вашей широты можно, написав мне слово "Уровни")', keyboard_four)
 
-                send_attachment (event, attachment)
+                    elif msg in ('1', '2', '3', '4', '5', '6', '7', '8', '9'):
+                        insert_into_db(id, msg, keyboard)
 
-            elif msg == 'secondary (dmi)':
-                img = urllib.request.urlopen(url_picture_2).read()
-                out = open("Secondary (DMI).png", "wb")
-                out.write(img)
-                out.close()
-                upload = vk_api.VkUpload(vk)
-                photo = upload.photo_messages('Secondary (DMI).png')
-                owner_id = photo[0]['owner_id']
-                photo_id = photo[0]['id']
-                access_key = photo[0]['access_key']
-                attachment = f'photo{owner_id}_{photo_id}_{access_key}'
+                    elif msg in ('отписка', 'отписаться', 'отписка от рассылки'):
+                        send (event, 'Про какой уровень Q вам больше не интересно получать информацию? (напишите "отписаться от {цифра}")', keyboard)
 
-                send_attachment (event, attachment)
+                    elif msg in ('отписаться от 1', 'отписаться от 2', 'отписаться от 3', 'отписаться от 4', 'отписаться от 5', 'отписаться от 6', 'отписаться от 7', 'отписаться от 8', 'отписаться от 9'):
+                        delete_from_db(id, msg[-1], keyboard)
 
-            elif msg == 'k&q index':
-                img = urllib.request.urlopen(url_picture_3).read()
-                out = open("K&Q index.png", "wb")
-                out.write(img)
-                out.close()
-                upload = vk_api.VkUpload(vk)
-                photo = upload.photo_messages('K&Q index.png')
-                owner_id = photo[0]['owner_id']
-                photo_id = photo[0]['id']
-                access_key = photo[0]['access_key']
-                attachment = f'photo{owner_id}_{photo_id}_{access_key}'
+                    elif msg in ('stop', 'стоп'):
+                        delete_from_db_for_id(id, keyboard)
 
-                send_attachment (event, attachment)
+                    elif msg == 'primary':
+                        img = urllib.request.urlopen(url_picture_1, timeout = 30).read()
+                        out = open("Primary.png", "wb")
+                        out.write(img)
+                        out.close()
+                        upload = vk_api.VkUpload(vk)
+                        photo = upload.photo_messages('Primary.png')
+                        owner_id = photo[0]['owner_id']
+                        photo_id = photo[0]['id']
+                        access_key = photo[0]['access_key']
+                        attachment = f'photo{owner_id}_{photo_id}_{access_key}'
 
-            elif msg == 'all':
+                        send_attachment (event, attachment, keyboard)
 
-                img = urllib.request.urlopen(url_picture_1).read()
-                out = open("Primary.png", "wb")
-                out.write(img)
-                out.close()
-                upload = vk_api.VkUpload(vk)
-                photo = upload.photo_messages('Primary.png')
-                owner_id = photo[0]['owner_id']
-                photo_id = photo[0]['id']
-                access_key = photo[0]['access_key']
-                picture_1 = f'photo{owner_id}_{photo_id}_{access_key}'
+                    elif msg == 'secondary (dmi)':
+                        img = urllib.request.urlopen(url_picture_2, timeout = 30).read()
+                        out = open("Secondary (DMI).png", "wb")
+                        out.write(img)
+                        out.close()
+                        upload = vk_api.VkUpload(vk)
+                        photo = upload.photo_messages('Secondary (DMI).png')
+                        owner_id = photo[0]['owner_id']
+                        photo_id = photo[0]['id']
+                        access_key = photo[0]['access_key']
+                        attachment = f'photo{owner_id}_{photo_id}_{access_key}'
 
-                img = urllib.request.urlopen(url_picture_2).read()
-                out = open("Secondary (DMI).png", "wb")
-                out.write(img)
-                out.close()
-                upload = vk_api.VkUpload(vk)
-                photo = upload.photo_messages('Secondary (DMI).png')
-                owner_id = photo[0]['owner_id']
-                photo_id = photo[0]['id']
-                access_key = photo[0]['access_key']
-                picture_2 = f'photo{owner_id}_{photo_id}_{access_key}'
+                        send_attachment (event, attachment, keyboard)
 
-                img = urllib.request.urlopen(url_picture_3).read()
-                out = open("K&Q index.png", "wb")
-                out.write(img)
-                out.close()
-                upload = vk_api.VkUpload(vk)
-                photo = upload.photo_messages('K&Q index.png')
-                owner_id = photo[0]['owner_id']
-                photo_id = photo[0]['id']
-                access_key = photo[0]['access_key']
-                picture_3 = f'photo{owner_id}_{photo_id}_{access_key}'
+                    elif msg == 'k&q index':
+                        img = urllib.request.urlopen(url_picture_3, timeout = 30).read()
+                        out = open("K&Q index.png", "wb")
+                        out.write(img)
+                        out.close()
+                        upload = vk_api.VkUpload(vk)
+                        photo = upload.photo_messages('K&Q index.png')
+                        owner_id = photo[0]['owner_id']
+                        photo_id = photo[0]['id']
+                        access_key = photo[0]['access_key']
+                        attachment = f'photo{owner_id}_{photo_id}_{access_key}'
 
-                send_attachment (event, [picture_1, picture_2, picture_3])
+                        send_attachment (event, attachment, keyboard)
 
-            else:
-                if not event.from_chat:
-                    send(event, 'К сожалению, я не понимаю...(')
+                    elif msg == 'all graphs':
+
+                        img = urllib.request.urlopen(url_picture_1, timeout = 30).read()
+                        out = open("Primary.png", "wb")
+                        out.write(img)
+                        out.close()
+                        upload = vk_api.VkUpload(vk)
+                        photo = upload.photo_messages('Primary.png')
+                        owner_id = photo[0]['owner_id']
+                        photo_id = photo[0]['id']
+                        access_key = photo[0]['access_key']
+                        picture_1 = f'photo{owner_id}_{photo_id}_{access_key}'
+
+                        img = urllib.request.urlopen(url_picture_2, timeout = 30).read()
+                        out = open("Secondary (DMI).png", "wb")
+                        out.write(img)
+                        out.close()
+                        upload = vk_api.VkUpload(vk)
+                        photo = upload.photo_messages('Secondary (DMI).png')
+                        owner_id = photo[0]['owner_id']
+                        photo_id = photo[0]['id']
+                        access_key = photo[0]['access_key']
+                        picture_2 = f'photo{owner_id}_{photo_id}_{access_key}'
+
+                        img = urllib.request.urlopen(url_picture_3, timeout = 30).read()
+                        out = open("K&Q index.png", "wb")
+                        out.write(img)
+                        out.close()
+                        upload = vk_api.VkUpload(vk)
+                        photo = upload.photo_messages('K&Q index.png')
+                        owner_id = photo[0]['owner_id']
+                        photo_id = photo[0]['id']
+                        access_key = photo[0]['access_key']
+                        picture_3 = f'photo{owner_id}_{photo_id}_{access_key}'
+
+                        send_attachment (event, [picture_1, picture_2, picture_3], keyboard)
+
+                    else:
+                        if not event.from_chat:
+                            send(event, 'К сожалению, я не понимаю...(', keyboard)
+
+        except (socket.timeout, urllib3.exceptions.ReadTimeoutError, requests.exceptions.ReadTimeout) as err:
+            print(err)
+            print('Переподключение longpool')
+            longpoll = VkBotLongPoll(vk_session, '202712381')
 
 
 th_1 = Thread(target = job_longpool)
@@ -367,6 +480,7 @@ schedule.every().hour.at(":46").do(run_threaded, analise_sender)
 
 # функция запуска многопоточной работы бота
 if __name__ == '__main__':
+
     th_1.start()
     while True:
         schedule.run_pending()
