@@ -65,6 +65,7 @@ keyboard_four.add_button('7', color=VkKeyboardColor.PRIMARY)
 keyboard_four.add_button('8', color=VkKeyboardColor.PRIMARY)
 keyboard_four.add_button('9', color=VkKeyboardColor.PRIMARY)
 keyboard_four.add_line()  # Переход на вторую строку
+keyboard_four.add_button('Уровни Q', color=VkKeyboardColor.SECONDARY)
 keyboard_four.add_button('В начало', color=VkKeyboardColor.NEGATIVE)
 
 keyboard_five = VkKeyboard()
@@ -83,8 +84,23 @@ keyboard_five.add_button('Про 9', color=VkKeyboardColor.PRIMARY)
 keyboard_five.add_line()  # Переход на вторую строку
 keyboard_five.add_button('В начало', color=VkKeyboardColor.NEGATIVE)
 
+keyboard_six = VkKeyboard()
+
+keyboard_six.add_button('1', color=VkKeyboardColor.SECONDARY)
+keyboard_six.add_button('2', color=VkKeyboardColor.SECONDARY)
+keyboard_six.add_button('3', color=VkKeyboardColor.SECONDARY)
+keyboard_six.add_line()  # Переход на вторую строку
+keyboard_six.add_button('4', color=VkKeyboardColor.POSITIVE)
+keyboard_six.add_button('5', color=VkKeyboardColor.POSITIVE)
+keyboard_six.add_button('6', color=VkKeyboardColor.POSITIVE)
+keyboard_six.add_line()  # Переход на вторую строку
+keyboard_six.add_button('7', color=VkKeyboardColor.PRIMARY)
+keyboard_six.add_button('8', color=VkKeyboardColor.PRIMARY)
+keyboard_six.add_button('9', color=VkKeyboardColor.PRIMARY)
+keyboard_six.add_line()  # Переход на вторую строку
+keyboard_six.add_button('В начало', color=VkKeyboardColor.NEGATIVE)
+
 vk_session = VkApi(token = main_token)
-# longpoll = VkBotLongPoll(vk_session, '202712381')
 vk = vk_session.get_api()
 
 
@@ -102,7 +118,7 @@ def insert_into_db(id, q_degree, keyboard):
         cursor.execute(insert_query)
         connection.commit()
         print("Запись успешно вставлена")
-        vk.messages.send(random_id = get_random_id(), peer_id = id, keyboard = keyboard.get_keyboard(), message = 'Вы добавлены в рассылку! Теперь вы будете получать уведомления, если график достигнет значения Q, которое вы указали')
+        vk.messages.send(random_id = get_random_id(), peer_id = id, keyboard = keyboard.get_keyboard(), message = 'Вы добавлены в рассылку! Теперь вы будете получать уведомления, если график достигнет или превысит значение Q, которое вы указали')
 
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
@@ -222,17 +238,17 @@ def send_attachment(event, image, kbd):
 
 
 # функция рассылки оповещения
-def sending(degree):
+def sending(degree, degree_for_sender):
 
     list_id = search_into_db(degree)
 
     for id_one in list_id:
-        vk.messages.send(random_id = get_random_id(), peer_id = id_one, keyboard = keyboard.get_keyboard(), message = f'&#10071;Внимание! График достиг уровня {degree}&#10071;')
+        vk.messages.send(random_id = get_random_id(), peer_id = id_one, keyboard = keyboard.get_keyboard(), message = f'&#10071;Внимание! График достиг уровня {degree_for_sender}&#10071;')
 
-    print(f'Ответил: "График достиг уровня {degree}"')
+    print(f'Выполнил рассылку уровня {degree}')
 
 # функция проверки графика и высылания ответа с анализом
-def graphs_analise(degree):
+def graphs_analise(degree, degree_for_sender):
 
     img = urllib.request.urlopen(url_picture_3, timeout = 30).read()
     out = open("K&Q index.png", "wb")
@@ -267,7 +283,7 @@ def graphs_analise(degree):
     sample_color = str((255, 255, 255))
 
     if color != sample_color:
-        sending(degree)
+        sending(degree, degree_for_sender)
 
 
 # функция проверки графика в данный момент
@@ -320,15 +336,16 @@ def graphs_analise_now():
 def analise_sender():
     print('Функция анализа запущена')
 
-    graphs_analise(1)
-    graphs_analise(2)
-    graphs_analise(3)
-    graphs_analise(4)
-    graphs_analise(5)
-    graphs_analise(6)
-    graphs_analise(7)
-    graphs_analise(8)
-    graphs_analise(9)
+    degree_for_sender = graphs_analise_now()
+    graphs_analise(1, degree_for_sender)
+    graphs_analise(2, degree_for_sender)
+    graphs_analise(3, degree_for_sender)
+    graphs_analise(4, degree_for_sender)
+    graphs_analise(5, degree_for_sender)
+    graphs_analise(6, degree_for_sender)
+    graphs_analise(7, degree_for_sender)
+    graphs_analise(8, degree_for_sender)
+    graphs_analise(9, degree_for_sender)
 
     print('Функция анализа завершена')
 
@@ -374,7 +391,7 @@ def job_longpool():
                         send (event, 'Ваш баг-репорт отправлен разработчику бота, в ближайшее время он займется исправлением неисправности. Спасибо :)', keyboard)
 
                     elif msg in ('уровни', 'уровни q', 'уровень', 'уровень q', 'q'):
-                        send (event, degree_Q, keyboard_four)
+                        send (event, degree_Q, keyboard_six)
 
                     elif msg in ('график', 'графики'):
                         send (event, "Какой график вас интересует?", keyboard_three)
