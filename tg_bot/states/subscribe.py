@@ -6,6 +6,9 @@ from aiogram.utils.emoji import emojize
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import Text
 from secret_data import *
+from db_functions import *
+import asyncio
+
 
 bot = Bot(token = main_token, parse_mode = types.ParseMode.HTML)
 
@@ -54,8 +57,7 @@ async def subscriber_step_two(message: types.Message, state: FSMContext):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True)
     keyboard.add(emojize(":chart_with_upwards_trend: Графики :chart_with_upwards_trend:"), emojize(":memo: Команды :memo:")).add(emojize(":hourglass: Сейчас :hourglass:"))
     degree = emojize_decryption(message.text)
-    await message.answer('Вы добавлены в рассылку! Теперь вы будете получать уведомления, если график достигнет или превысит значение Q, которое вы указали', reply_markup = keyboard)
-
+    await insert_into_db(message.from_user.id, degree, keyboard)
     await state.finish()
 
 

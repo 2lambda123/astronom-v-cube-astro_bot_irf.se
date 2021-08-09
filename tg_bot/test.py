@@ -10,18 +10,23 @@ from aiogram.contrib.middlewares.logging import LoggingMiddleware
 import urllib.request
 import urllib3
 import requests
+import asyncio
 from secret_data import *
 from astro_bot_vars import *
 from states.report import *
 from states.subscribe import *
 from states.unsubscribe import *
-
+from db_functions import *
+from analise_functions import *
 
 print('Бот запущен')
 
 bot = Bot(token = main_token, parse_mode = types.ParseMode.HTML)
 dp = Dispatcher(bot, storage = MemoryStorage())
 dp.middleware.setup(LoggingMiddleware())
+
+standart_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True)
+standart_keyboard.add(emojize(":chart_with_upwards_trend: Графики :chart_with_upwards_trend:"), emojize(":memo: Команды :memo:")).add(emojize(":hourglass: Сейчас :hourglass:"))
 
 def send(user_id, msg, keyboard):
 
@@ -33,9 +38,15 @@ def send_attachment(user_id, image, keyboard):
     print(f'Ответил фото пользователю с id: {user_id}')
     return bot.send_photo(chat_id = user_id, photo = image, reply_markup = keyboard)
 
+def sending(degree, degree_for_sender):
 
-standart_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True)
-standart_keyboard.add(emojize(":chart_with_upwards_trend: Графики :chart_with_upwards_trend:"), emojize(":memo: Команды :memo:")).add(emojize(":hourglass: Сейчас :hourglass:"))
+    list_id = search_into_db(degree)
+
+    for id_one in list_id:
+
+        bot.send_message(chat_id = id_one, text = emojize(f':heavy_exclamation_mark: Внимание! График достиг уровня {degree_for_sender} :heavy_exclamation_mark:'), reply_markup = standart_keyboard)
+
+    print(f'Выполнил рассылку уровня {degree}')
 
 
 register_handlers_report_command(dp)
@@ -94,7 +105,7 @@ async def graphs(message: types.Message):
 @dp.message_handler(Text(equals = "Стоп"))
 @dp.message_handler(Text(equals = "стоп"))
 async def stop(message: types.Message):
-    await message.answer('Отписываю!!!!!!!!!!!!!!!!', reply_markup = standart_keyboard)
+    await delete_from_db_for_id(message.from_user.id, standart_keyboard)
 
 @dp.message_handler(Text(equals = "Primary"))
 async def graphs_1(message: types.Message):

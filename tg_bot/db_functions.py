@@ -1,9 +1,13 @@
 import psycopg2
 from psycopg2 import Error
+from aiogram import Bot
 from secret_data import *
+import asyncio
+
+bot = Bot(token = main_token)
 
 # функция добавления пользователя в рассылку
-def insert_into_db(id, q_degree, keyboard):
+async def insert_into_db(id, q_degree, keyboard):
     try:
         # Подключение к существующей базе данных
         connection = psycopg2.connect(user = user, password = password, host = host, port = port, database = database)
@@ -15,11 +19,12 @@ def insert_into_db(id, q_degree, keyboard):
         insert_query = f" INSERT INTO tg_users VALUES ({id}, {q_degree}) "
         cursor.execute(insert_query)
         connection.commit()
+        await bot.send_message(chat_id = id, text = 'Вы добавлены в рассылку! Теперь вы будете получать уведомления, если график достигнет или превысит значение Q, которое вы указали', reply_markup = keyboard)
         print(f"Запись ({id}, {q_degree}) успешно вставлена")
 
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
-        return bot.send_message(chat_id = id, text = 'Произошла ошибка! Вероятно, вы уже подписаны на данный уровень Q', reply_markup = keyboard)
+        return await bot.send_message(chat_id = id, text = 'Произошла ошибка! Вероятно, вы уже подписаны на данный уровень Q', reply_markup = keyboard)
 
     finally:
         if connection:
@@ -29,7 +34,7 @@ def insert_into_db(id, q_degree, keyboard):
 
 
 # функция удаления пользователя из базы данных
-def delete_from_db(id, q_degree, keyboard):
+async def delete_from_db(id, q_degree, keyboard):
     try:
         # Подключение к существующей базе данных
         connection = psycopg2.connect(user = user, password = password, host = host, port = port, database = database)
@@ -42,11 +47,11 @@ def delete_from_db(id, q_degree, keyboard):
         cursor.execute(delete_query)
         connection.commit()
         print("Запись успешно удалена")
-        vk.messages.send(random_id = get_random_id(), peer_id = id, keyboard = keyboard.get_keyboard(), message = 'Вы исключены из рассылки! Больше вы не будете получать уведомления об этом уровне Q')
+        await bot.send_message(chat_id = id, text = 'Вы исключены из рассылки! Больше вы не будете получать уведомления об этом уровне Q', reply_markup = keyboard)
 
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
-        vk.messages.send(random_id = get_random_id(), peer_id = id, keyboard = keyboard.get_keyboard(), message = 'Произошла ошибка! Вероятно, вы не подписаны на данный уровень Q')
+        await bot.send_message(chat_id = id, text = 'Произошла ошибка! Вероятно, вы не подписаны на данный уровень Q', reply_markup = keyboard)
 
     finally:
         if connection:
@@ -56,7 +61,7 @@ def delete_from_db(id, q_degree, keyboard):
 
 
 # функция отключения пользователя от базы данных
-def delete_from_db_for_id(id, keyboard):
+async def delete_from_db_for_id(id, keyboard):
     try:
         # Подключение к существующей базе данных
         connection = psycopg2.connect(user = user, password = password, host = host, port = port, database = database)
@@ -69,11 +74,12 @@ def delete_from_db_for_id(id, keyboard):
         cursor.execute(delete_query)
         connection.commit()
         print("Запись успешно удалена")
-        vk.messages.send(random_id = get_random_id(), peer_id = id, keyboard = keyboard.get_keyboard(), message = 'Вы исключены из рассылки! Больше вы не будете получать уведомления')
+        await bot.send_message(chat_id = id, text = 'Вы исключены из рассылки! Больше вы не будете получать уведомления', reply_markup = keyboard)
 
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
-        vk.messages.send(random_id = get_random_id(), peer_id = id, keyboard = keyboard.get_keyboard(), message = 'Произошла ошибка!')
+        await bot.send_message(chat_id = id, text = 'Произошла ошибка!', reply_markup = keyboard)
+
 
     finally:
         if connection:
@@ -83,7 +89,7 @@ def delete_from_db_for_id(id, keyboard):
 
 
 # функция поиска пользователей по базе данных и создания списка рассылки
-def search_into_db(q_degree):
+async def search_into_db(q_degree):
     try:
         # Подключение к существующей базе данных
         connection = psycopg2.connect(user = user, password = password, host = host, port = port, database = database)
