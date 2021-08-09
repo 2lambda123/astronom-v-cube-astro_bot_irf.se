@@ -1,4 +1,7 @@
 from PIL import Image
+import urllib.request
+import urllib3
+import requests
 from astro_bot_vars import *
 
 # функция проверки графика и высылания ответа с анализом

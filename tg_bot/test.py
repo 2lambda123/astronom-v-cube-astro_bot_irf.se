@@ -11,6 +11,9 @@ import urllib.request
 import urllib3
 import requests
 import asyncio
+import time
+from threading import Thread
+import schedule
 from secret_data import *
 from astro_bot_vars import *
 from states.report import *
@@ -98,7 +101,7 @@ async def graphs(message: types.Message):
 @dp.message_handler(Text(equals = "Сейчас"))
 @dp.message_handler(Text(equals = "сейчас"))
 async def graphs(message: types.Message):
-    await send(message.from_user.id, f'Текущий уровень Q - ', standart_keyboard)
+    await send(message.from_user.id, f'Текущий уровень Q - {graphs_analise_now()}', standart_keyboard)
 
 @dp.message_handler(commands = 'stop')
 @dp.message_handler(Text(equals = emojize(":x: Стоп :x:")))
@@ -133,5 +136,24 @@ async def graphs_all(message: types.Message):
     await send_attachment(message.from_user.id, img_2, standart_keyboard)
     await send_attachment(message.from_user.id, img_3, standart_keyboard)
 
-if __name__ == '__main__':
+def job_longpool():
     executor.start_polling(dp)
+
+th_1 = Thread(target = job_longpool)
+
+def run_threaded(job_func):
+    job_thread = Thread(target = job_func)
+    job_thread.start()
+
+schedule.every().hour.at(":01").do(run_threaded, analise_sender)
+schedule.every().hour.at(":16").do(run_threaded, analise_sender)
+schedule.every().hour.at(":31").do(run_threaded, analise_sender)
+schedule.every().hour.at(":46").do(run_threaded, analise_sender)
+
+# функция запуска многопоточной работы бота
+if __name__ == '__main__':
+
+    th_1.start()
+    while True:
+        schedule.run_pending()
+        time.sleep(30)
