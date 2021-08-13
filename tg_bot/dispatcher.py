@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 from aiogram import Bot, types
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils import executor
@@ -12,45 +14,23 @@ import urllib3
 import requests
 import asyncio
 import time
-from threading import Thread
-import schedule
 from secret_data import *
 from astro_bot_vars import *
 from states.report import *
 from states.subscribe import *
 from states.unsubscribe import *
-from db_functions import *
-from analise_functions import *
+from functions.db_functions import *
+from functions.sending_functions import *
+from functions.analise_functions import *
 
-print('Бот запущен')
+print('Диспетчер запущен...')
+
 
 bot = Bot(token = main_token, parse_mode = types.ParseMode.HTML)
 dp = Dispatcher(bot, storage = MemoryStorage())
-dp.middleware.setup(LoggingMiddleware())
 
 standart_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True)
 standart_keyboard.add(emojize(":chart_with_upwards_trend: Графики :chart_with_upwards_trend:"), emojize(":memo: Команды :memo:")).add(emojize(":hourglass: Сейчас :hourglass:"))
-
-def send(user_id, msg, keyboard):
-
-    print(f'Ответил: "{msg}" пользователю с id: {user_id}')
-    return bot.send_message(chat_id = user_id, text = msg, reply_markup = keyboard)
-
-def send_attachment(user_id, image, keyboard):
-
-    print(f'Ответил фото пользователю с id: {user_id}')
-    return bot.send_photo(chat_id = user_id, photo = image, reply_markup = keyboard)
-
-def sending(degree, degree_for_sender):
-
-    list_id = search_into_db(degree)
-
-    for id_one in list_id:
-
-        bot.send_message(chat_id = id_one, text = emojize(f':heavy_exclamation_mark: Внимание! График достиг уровня {degree_for_sender} :heavy_exclamation_mark:'), reply_markup = standart_keyboard)
-
-    print(f'Выполнил рассылку уровня {degree}')
-
 
 register_handlers_report_command(dp)
 register_handlers_report_text(dp)
@@ -136,24 +116,5 @@ async def graphs_all(message: types.Message):
     await send_attachment(message.from_user.id, img_2, standart_keyboard)
     await send_attachment(message.from_user.id, img_3, standart_keyboard)
 
-def job_longpool():
+def job_longpull():
     executor.start_polling(dp)
-
-th_1 = Thread(target = job_longpool)
-
-def run_threaded(job_func):
-    job_thread = Thread(target = job_func)
-    job_thread.start()
-
-schedule.every().hour.at(":01").do(run_threaded, analise_sender)
-schedule.every().hour.at(":16").do(run_threaded, analise_sender)
-schedule.every().hour.at(":31").do(run_threaded, analise_sender)
-schedule.every().hour.at(":46").do(run_threaded, analise_sender)
-
-# функция запуска многопоточной работы бота
-if __name__ == '__main__':
-
-    th_1.start()
-    while True:
-        schedule.run_pending()
-        time.sleep(30)

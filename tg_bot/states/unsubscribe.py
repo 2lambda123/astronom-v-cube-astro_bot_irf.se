@@ -6,7 +6,7 @@ from aiogram.utils.emoji import emojize
 from aiogram.dispatcher import Dispatcher
 from aiogram.dispatcher.filters import Text
 from secret_data import *
-from db_functions import *
+from functions.db_functions import *
 import asyncio
 
 

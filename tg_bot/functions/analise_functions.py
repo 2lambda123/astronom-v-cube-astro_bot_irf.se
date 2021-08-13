@@ -2,6 +2,7 @@ from PIL import Image
 import urllib.request
 import urllib3
 import requests
+from tqdm import tqdm
 from astro_bot_vars import *
 
 # функция проверки графика и высылания ответа с анализом
@@ -94,14 +95,10 @@ def analise_sender():
     print('Функция анализа запущена')
 
     degree_for_sender = graphs_analise_now()
-    graphs_analise(1, degree_for_sender)
-    graphs_analise(2, degree_for_sender)
-    graphs_analise(3, degree_for_sender)
-    graphs_analise(4, degree_for_sender)
-    graphs_analise(5, degree_for_sender)
-    graphs_analise(6, degree_for_sender)
-    graphs_analise(7, degree_for_sender)
-    graphs_analise(8, degree_for_sender)
-    graphs_analise(9, degree_for_sender)
+    q_degree_list = [1,2,3,4,5,6,7,8,9]
+
+    for degree in tqdm(q_degree_list, ncols = 175):
+
+        graphs_analise(degree, degree_for_sender)
 
     print('Функция анализа завершена')
