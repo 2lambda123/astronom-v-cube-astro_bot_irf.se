@@ -1,3 +1,7 @@
+[![Telegram Bot](https://img.shields.io/badge/Bot-Telegram-blue?style=for-the-badge&logo=telegram)](https://t.me/polar_lights_bot)
+[![VKontakte Bot](https://img.shields.io/badge/Bot-vk-blue?style=for-the-badge&logo=vk)](https://vk.com/astro_bot_irf)
+
+
 # Данные магнитометров
 
 Бот для групп платформы ВКонтакте для быстрого получения данных с магнитометров, расположенных в городе Кируна (Швеция)
