@@ -4,6 +4,7 @@ import urllib3
 import requests
 from tqdm import tqdm
 from astro_bot_vars import *
+from functions.sending_functions import *
 
 # функция проверки графика и высылания ответа с анализом
 def graphs_analise(degree, degree_for_sender):
