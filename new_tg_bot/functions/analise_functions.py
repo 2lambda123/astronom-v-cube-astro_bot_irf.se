@@ -4,26 +4,23 @@ import urllib3
 import requests
 from tqdm import tqdm
 from functions.db_functions import *
-from aiogram import Bot, types
 from secret_data import *
 from astro_bot_vars import *
-import asyncio
 
-bot = Bot(token = main_token, parse_mode = types.ParseMode.HTML)
 
-async def sending(degree, degree_for_sender):
+def sending(degree, degree_for_sender):
 
     list_id = search_into_db(degree)
 
     for id_one in list_id:
 
-        await bot.send_message(chat_id = id_one, text = emojize(f':heavy_exclamation_mark: Внимание! График достиг уровня {degree_for_sender} :heavy_exclamation_mark:'), reply_markup = standart_keyboard)
+        bot.send_message(chat_id = id_one, text = emojize(f':heavy_exclamation_mark: Внимание! График достиг уровня {degree_for_sender} :heavy_exclamation_mark:'), reply_markup = standart_keyboard)
 
     print(f'Выполнил рассылку уровня {degree}')
 
 
 # функция проверки графика и высылания ответа с анализом
-async def graphs_analise(degree, degree_for_sender):
+def graphs_analise(degree, degree_for_sender):
 
     img = urllib.request.urlopen(url_picture_3, timeout = 30).read()
     out = open("K&Q index.png", "wb")
@@ -58,11 +55,12 @@ async def graphs_analise(degree, degree_for_sender):
     sample_color = str((255, 255, 255))
 
     if color != sample_color:
-        await sending(degree, degree_for_sender)
+
+        sending(degree, degree_for_sender)
 
 
 # функция проверки графика в данный момент
-async def graphs_analise_now():
+def graphs_analise_now():
 
     img = urllib.request.urlopen(url_picture_3, timeout = 30).read()
     out = open("K&Q index.png", "wb")
@@ -108,7 +106,7 @@ async def graphs_analise_now():
 
 
 # функция отправки результата анализа по базам данных
-async def analise_sender():
+def analise_sender():
     print('Функция анализа запущена')
 
     degree_for_sender = graphs_analise_now()
@@ -116,6 +114,6 @@ async def analise_sender():
 
     for degree in tqdm(q_degree_list, ncols = 175):
 
-        await graphs_analise(degree, degree_for_sender)
+        graphs_analise(degree, degree_for_sender)
 
     print('Функция анализа завершена')

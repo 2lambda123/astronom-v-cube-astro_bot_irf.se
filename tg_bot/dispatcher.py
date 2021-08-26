@@ -25,7 +25,6 @@ from functions.analise_functions import *
 
 print('Диспетчер запущен...')
 
-
 bot = Bot(token = main_token, parse_mode = types.ParseMode.HTML)
 dp = Dispatcher(bot, storage = MemoryStorage())
 
@@ -40,53 +39,35 @@ register_handlers_unsubscriber_commands(dp)
 register_handlers_unsubscriber_text(dp)
 
 @dp.message_handler(commands = 'start')
-@dp.message_handler(Text(equals = "Старт"))
-@dp.message_handler(Text(equals = "старт"))
-@dp.message_handler(Text(equals = "Начать"))
-@dp.message_handler(Text(equals = "начать"))
-@dp.message_handler(Text(equals = "Привет"))
-@dp.message_handler(Text(equals = "привет"))
+@dp.message_handler(text = ['Старт', 'старт', 'Начать', 'начать', 'Привет', 'привет'])
 async def start(message: types.Message):
     await send(message.from_user.id, hello, standart_keyboard)
 
 @dp.message_handler(commands = 'help')
-@dp.message_handler(Text(equals = emojize(":memo: Команды :memo:")))
-@dp.message_handler(Text(equals = "Команды"))
-@dp.message_handler(Text(equals = "команды"))
+@dp.message_handler(text = ['Команды', 'команды', emojize(":memo: Команды :memo:")])
 async def help(message: types.Message):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True)
     keyboard.add(emojize(":bell: Подписаться :bell:")).add(emojize(":no_bell: Отписаться :no_bell:"), emojize(":x: Стоп :x:")).add(emojize(":bar_chart: Уровни Q :bar_chart:"), emojize(":chart_with_upwards_trend: Графики :chart_with_upwards_trend:")).add(emojize(":warning: Баг-репорт :warning:"), emojize(":arrow_up: В начало :arrow_up:"))
     await send(message.from_user.id, commands, keyboard)
 
 @dp.message_handler(commands = 'q_degree')
-@dp.message_handler(Text(equals = emojize(":bar_chart: Уровни Q :bar_chart:")))
-@dp.message_handler(Text(equals = "Уровни"))
-@dp.message_handler(Text(equals = "уровни"))
+@dp.message_handler(text = ['Уровни', 'уровни', emojize(":bar_chart: Уровни Q :bar_chart:")])
 async def q_degree(message: types.Message):
     await send(message.from_user.id, degree_q, standart_keyboard)
 
-@dp.message_handler(Text(equals = emojize(":chart_with_upwards_trend: Графики :chart_with_upwards_trend:")))
-@dp.message_handler(Text(equals = "Графики"))
-@dp.message_handler(Text(equals = "графики"))
+@dp.message_handler(text = ['Графики', 'графики', emojize(":chart_with_upwards_trend: Графики :chart_with_upwards_trend:")])
 async def graphs(message: types.Message):
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True)
     keyboard.add("Primary", "Secondary (DMI)").add("K&Q index", "All graphs")
     await send(message.from_user.id, 'Какой график вас интересует?', keyboard)
 
-@dp.message_handler(Text(equals = emojize(":arrow_up: В начало :arrow_up:")))
-@dp.message_handler(Text(equals = "В начало"))
-@dp.message_handler(Text(equals = "в начало"))
 @dp.message_handler(commands = 'now')
-@dp.message_handler(Text(equals = emojize(":hourglass: Сейчас :hourglass:")))
-@dp.message_handler(Text(equals = "Сейчас"))
-@dp.message_handler(Text(equals = "сейчас"))
+@dp.message_handler(text = ['В начало', 'в начало', 'Сейчас', 'сейчас', emojize(":arrow_up: В начало :arrow_up:"), emojize(":hourglass: Сейчас :hourglass:")])
 async def graphs(message: types.Message):
     await send(message.from_user.id, f'Текущий уровень Q - {graphs_analise_now()}', standart_keyboard)
 
 @dp.message_handler(commands = 'stop')
-@dp.message_handler(Text(equals = emojize(":x: Стоп :x:")))
-@dp.message_handler(Text(equals = "Стоп"))
-@dp.message_handler(Text(equals = "стоп"))
+@dp.message_handler(text = ['Стоп', 'стоп', emojize(":x: Стоп :x:")])
 async def stop(message: types.Message):
     await delete_from_db_for_id(message.from_user.id, standart_keyboard)
 
@@ -118,3 +99,5 @@ async def graphs_all(message: types.Message):
 
 def job_longpull():
     executor.start_polling(dp)
+
+job_longpull()
