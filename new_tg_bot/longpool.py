@@ -11,6 +11,24 @@ print('Бот запущен...')
 
 bot = telebot.TeleBot(main_token)
 
+@bot.message_handler(func = lambda message: message.text.lower() == "/subscribe")
+@bot.message_handler(func = lambda message: message.text.lower() == "подписаться")
+@bot.message_handler(func = lambda message: message.text.lower() == ":bell: подписаться :bell:")
+def subscribe(message):
+
+    send(message.from_user.id, 'Какой уровень Q вас интересует? (Узнать уровень Q для вашей широты можно, написав мне слово "Уровни")', subscribe_keyboard)
+
+    bot.register_next_step_handler(message, get_degree); #следующий шаг – функция get_name
+
+
+def get_degree(message):
+
+    q_degree = emojize_decryption(message.text)
+
+    insert_into_db(message.from_user.id, q_degree)
+
+
+
 @bot.message_handler(content_types = ["text"])
 
 def send_text(message):
@@ -61,26 +79,6 @@ def send_text(message):
         send_attachment(message.from_user.id, img_2, standart_keyboard)
         img_3 = urllib.request.urlopen(url_picture_3, timeout = 30).read()
         send_attachment(message.from_user.id, img_3, standart_keyboard)
-
-@bot.message_handler(func = lambda message: message.text.lower() == "/subscribe")
-@bot.message_handler(func = lambda message: message.text.lower() == "подписаться")
-@bot.message_handler(func = lambda message: message.text.lower() == ":bell: подписаться :bell:")
-def subscribe(message):
-
-    send(message.from_user.id, 'Какой уровень Q вас интересует? (Узнать уровень Q для вашей широты можно, написав мне слово "Уровни")', subscribe_keyboard)
-
-    bot.register_next_step_handler(message, get_degree); #следующий шаг – функция get_name
-
-
-def get_degree(message):
-
-    q_degree = emojize_decryption(message.text)
-
-    insert_into_db(message.from_user.id, q_degree)
-
-
-
-
 
 def job_longpool():
 
