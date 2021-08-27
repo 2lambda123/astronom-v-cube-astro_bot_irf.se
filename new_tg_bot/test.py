@@ -9,7 +9,20 @@ from keyboards import *
 
 print('Бот запущен...')
 
-bot = telebot.TeleBot(main_token)
+def start_longpool():
+
+    print('Функция прослушивания longpool запущена')
+
+    try:
+
+        bot = telebot.TeleBot(main_token)
+
+    except (requests.exceptions.ConnectionError, urllib3.exceptions.MaxRetryError, urllib3.exceptions.NewConnectionError, socket.gaierror, http.client.RemoteDisconnected, urllib3.exceptions.ProtocolError) as err:
+        print(err)
+        print('Переподключение longpool')
+        bot = telebot.TeleBot(main_token)
+
+start_longpool()
 
 @bot.message_handler(content_types = ["text"])
 def send_text(message):
@@ -64,6 +77,7 @@ def send_text(message):
     else:
 
         send(message.chat.id, 'К сожалению, я не понимаю...(', standart_keyboard)
+
 
 if __name__ == '__main__':
 
