@@ -9,22 +9,10 @@ from keyboards import *
 
 print('Бот запущен...')
 
-def start_longpool():
-
-    print('Функция прослушивания longpool запущена')
-
-    try:
-
-        bot = telebot.TeleBot(main_token)
-
-    except (requests.exceptions.ConnectionError, urllib3.exceptions.MaxRetryError, urllib3.exceptions.NewConnectionError, socket.gaierror, http.client.RemoteDisconnected, urllib3.exceptions.ProtocolError) as err:
-        print(err)
-        print('Переподключение longpool')
-        bot = telebot.TeleBot(main_token)
-
-start_longpool()
+bot = telebot.TeleBot(main_token)
 
 @bot.message_handler(content_types = ["text"])
+
 def send_text(message):
     if message.text.lower() in ['старт', 'начать', 'привет', '/start']:
 
@@ -36,7 +24,7 @@ def send_text(message):
 
     elif message.text.lower() in ['широты', 'уровни', emojize(":bar_chart: уровни q :bar_chart:"), '/q_degree', 'ку', 'q']:
 
-        send(message.chat.id, degree_q, subscribe_keyboard)
+        send(message.chat.id, degree_q, standart_keyboard)
 
     elif message.text.lower() in ['графики', emojize(":chart_increasing: графики :chart_increasing:", 'график')]:
 
@@ -48,7 +36,7 @@ def send_text(message):
 
     elif message.text.lower() in ['/stop', 'стоп', emojize(":cross_mark: стоп :cross_mark:")]:
 
-        send(message.chat.id, hello, standart_keyboard)
+        delete_from_db_for_id(message.chat.id)
 
     elif message.text.lower() == 'primary':
 
@@ -74,11 +62,26 @@ def send_text(message):
         img_3 = urllib.request.urlopen(url_picture_3, timeout = 30).read()
         send_attachment(message.from_user.id, img_3, standart_keyboard)
 
-    else:
+@bot.message_handler(func = lambda message: message.text.lower() == "/subscribe")
+@bot.message_handler(func = lambda message: message.text.lower() == "подписаться")
+@bot.message_handler(func = lambda message: message.text.lower() == ":bell: подписаться :bell:")
+def subscribe(message):
 
-        send(message.chat.id, 'К сожалению, я не понимаю...(', standart_keyboard)
+    send(message.from_user.id, 'Какой уровень Q вас интересует? (Узнать уровень Q для вашей широты можно, написав мне слово "Уровни")', subscribe_keyboard)
+
+    bot.register_next_step_handler(message, get_degree); #следующий шаг – функция get_name
 
 
-if __name__ == '__main__':
+def get_degree(message):
 
-     bot.infinity_polling()
+    q_degree = emojize_decryption(message.text)
+
+    insert_into_db(message.from_user.id, q_degree)
+
+
+
+
+
+def job_longpool():
+
+    bot.infinity_polling()
