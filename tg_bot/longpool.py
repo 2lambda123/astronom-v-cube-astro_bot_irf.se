@@ -38,7 +38,7 @@ def subscribe_get_degree(message):
 
 def unsubscribe(message):
 
-    send(message.from_user.id, 'Какой уровень Q вас интересует? (Узнать уровень Q для вашей широты можно, написав мне слово "Уровни")', subscribe_keyboard)
+    send(message.from_user.id, 'Про какой уровень Q вам больше не интересно получать информацию? (Узнать уровень Q для вашей широты можно, написав мне слово "Уровни")', subscribe_keyboard)
 
     bot.register_next_step_handler(message, unsubscribe_get_degree)  # следующий шаг – функция get_name
 

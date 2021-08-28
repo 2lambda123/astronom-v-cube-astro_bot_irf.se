@@ -21,6 +21,6 @@ def sending(degree, degree_for_sender):
 
     for id_one in list_id:
 
-        bot.send_message(id_one, emojize(f':red_exclamation_mark: Внимание! График достиг уровня {degree_for_sender} :red_exclamation_mark:'), reply_markup = standart_keyboard)
+        bot.send_message(id_one, emojize(f':red_exclamation_mark:Внимание! График достиг уровня {degree_for_sender}:red_exclamation_mark:'), reply_markup = standart_keyboard)
 
     print(f'Выполнил рассылку уровня {degree}')
