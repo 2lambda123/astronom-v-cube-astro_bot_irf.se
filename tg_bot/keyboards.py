@@ -14,7 +14,7 @@ subscribe_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True)
 subscribe_keyboard.add(emojize(":keycap_1:"), emojize(":keycap_2:"), emojize(":keycap_3:")).add(emojize(":keycap_4:"), emojize(":keycap_5:"), emojize(":keycap_6:")).add(emojize(":keycap_7:"), emojize(":keycap_8:"), emojize(":keycap_9:")).add(emojize(":bar_chart: Уровни Q :bar_chart:"), emojize(":counterclockwise_arrows_button: В начало :counterclockwise_arrows_button:"))
 
 unsubscribe_keyboard = types.ReplyKeyboardMarkup(resize_keyboard = True)
-subscribe_keyboard.add(emojize(":keycap_1:"), emojize(":keycap_2:"), emojize(":keycap_3:")).add(emojize(":keycap_4:"), emojize(":keycap_5:"), emojize(":keycap_6:")).add(emojize(":keycap_7:"), emojize(":keycap_8:"), emojize(":keycap_9:")).add( emojize(":counterclockwise_arrows_button: В начало :counterclockwise_arrows_button:"))
+unsubscribe_keyboard.add(emojize(":keycap_1:"), emojize(":keycap_2:"), emojize(":keycap_3:")).add(emojize(":keycap_4:"), emojize(":keycap_5:"), emojize(":keycap_6:")).add(emojize(":keycap_7:"), emojize(":keycap_8:"), emojize(":keycap_9:")).add( emojize(":counterclockwise_arrows_button: В начало :counterclockwise_arrows_button:"))
 
 def emojize_decryption(msg):
 

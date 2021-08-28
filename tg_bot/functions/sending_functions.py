@@ -1,25 +1,26 @@
-from aiogram import Bot, types
-from secret_data import *
 from functions.db_functions import *
+from keyboards import standart_keyboard
+from config import *
+import telebot
 
-bot = Bot(token = main_token, parse_mode = types.ParseMode.HTML)
+bot = telebot.TeleBot(main_token)
 
 def send(user_id, msg, keyboard):
 
     print(f'Ответил: "{msg}" пользователю с id: {user_id}')
-    return bot.send_message(chat_id = user_id, text = msg, reply_markup = keyboard)
+    return bot.send_message(user_id, msg, reply_markup = keyboard, parse_mode='html')
 
 def send_attachment(user_id, image, keyboard):
 
-    print(f'Ответил фото пользователю с id: {user_id}')
-    return bot.send_photo(chat_id = user_id, photo = image, reply_markup = keyboard)
+    print(f'Отправил фото пользователю с id: {user_id}')
+    return bot.send_photo(user_id, image, reply_markup = keyboard)
 
-# def sending(degree, degree_for_sender):
-#
-#     list_id = search_into_db(degree)
-#
-#     for id_one in list_id:
-#
-#         bot.send_message(chat_id = id_one, text = emojize(f':heavy_exclamation_mark: Внимание! График достиг уровня {degree_for_sender} :heavy_exclamation_mark:'), reply_markup = standart_keyboard)
-#
-#     print(f'Выполнил рассылку уровня {degree}')
+def sending(degree, degree_for_sender):
+
+    list_id = search_into_db(degree)
+
+    for id_one in list_id:
+
+        bot.send_message(id_one, emojize(f':red_exclamation_mark: Внимание! График достиг уровня {degree_for_sender} :red_exclamation_mark:'), reply_markup = standart_keyboard)
+
+    print(f'Выполнил рассылку уровня {degree}')

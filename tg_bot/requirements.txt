@@ -1,0 +1,10 @@
+telebot
+urllib
+threading
+schedule
+time
+emoji
+PIL
+urllib3
+tqdm
+psycopg2

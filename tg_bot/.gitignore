@@ -1,6 +1,6 @@
 __pycache__/
 .mypy_cache
-secret_data.py
+config.py
 Primary.png
 Secondary (DMI).png
 K&Q index.png
