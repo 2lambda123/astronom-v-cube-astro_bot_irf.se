@@ -1,10 +1,12 @@
-telebot
+# use pip install -r requirements.txt
+
+pytelegrambotapi # replace telebot
 urllib
 threading
 schedule
 time
 emoji
-PIL
+Pillow # replace PIL
 urllib3
 tqdm
 psycopg2
