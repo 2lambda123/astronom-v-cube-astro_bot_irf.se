@@ -1,5 +1,5 @@
 from config import *
-from astro_bot_vars import *
+from bot_vars import *
 from functions.db_functions import *
 from functions.sending_functions import *
 from functions.analise_functions import *

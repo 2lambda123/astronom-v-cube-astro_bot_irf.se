@@ -5,7 +5,7 @@ import requests
 from tqdm import tqdm
 from functions.db_functions import *
 from config import *
-from astro_bot_vars import *
+from bot_vars import *
 
 
 def sending(degree, degree_for_sender):
