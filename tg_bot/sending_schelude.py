@@ -5,7 +5,7 @@ from functions.analise_functions import *
 import time
 from threading import Thread
 
-print('Рассылка запущена...')
+logging.info('Рассылка запущена...')
 
 schedule.every().hour.at(":01").do(analise_sender)
 schedule.every().hour.at(":16").do(analise_sender)
