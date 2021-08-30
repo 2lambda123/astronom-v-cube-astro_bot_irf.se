@@ -367,7 +367,7 @@ def job_longpool():
                     id = event.obj["peer_id"]
 
                     if msg in ('начать', 'привет', 'старт'):
-                        send (event, hello, keyboard)
+                        send (event, 'hello', keyboard)
 
                     elif msg in ('test', 'тест'):
                         send (event, 'Бот работает успешно!', keyboard)
