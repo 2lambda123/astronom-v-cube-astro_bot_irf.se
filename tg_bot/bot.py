@@ -4,8 +4,11 @@
 from sending_schelude import job_sending
 from longpool import job_longpool
 from threading import Thread
+import logging
 
-print('Бот запущен...')
+logging.basicConfig(filename = 'logs.log',  filemode='w', level = logging.INFO, format = ' %(asctime)s - %(levelname)s - %(message)s', encoding = "UTF-8", datefmt='%d-%b-%y %H:%M:%S')
+
+logging.info('Бот запущен...')
 
 th_1 = Thread(target = job_longpool)
 th_2 = Thread(target = job_sending)

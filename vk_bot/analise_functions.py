@@ -1,27 +1,7 @@
 from PIL import Image
-import urllib.request
-from functions.db_functions import *
-from config import *
+import urllib
 from bot_vars import *
-import logging
-
-logging.basicConfig(filename = 'logs.log',  filemode='w', level = logging.INFO, format = ' %(asctime)s - %(levelname)s - %(message)s', encoding = "UTF-8", datefmt='%d-%b-%y %H:%M:%S')
-
-def sending(degree, degree_for_sender):
-
-    list_id = search_into_db(degree)
-
-    for id_one in list_id:
-        try:
-            bot.send_message(chat_id = id_one, text = emojize(f':red_exclamation_mark: Внимание! График достиг уровня {degree_for_sender} :red_exclamation_mark:'), reply_markup = standart_keyboard)
-
-        except Exception as exception:
-
-            logging.info(f'ПРОБЛЕМЫ С ID {id_one}')
-            logging.info(f'Ошибка: {exception}')
-
-    logging.info(f'Выполнил рассылку уровня {degree}')
-
+from sending_functions import sending
 
 # функция проверки графика и высылания ответа с анализом
 def graphs_analise(degree, degree_for_sender):
@@ -59,7 +39,6 @@ def graphs_analise(degree, degree_for_sender):
     sample_color = str((255, 255, 255))
 
     if color != sample_color:
-
         sending(degree, degree_for_sender)
 
 
@@ -111,14 +90,17 @@ def graphs_analise_now():
 
 # функция отправки результата анализа по базам данных
 def analise_sender():
-
-    logging.info('Функция анализа запущена')
+    print('Функция анализа запущена')
 
     degree_for_sender = graphs_analise_now()
-    q_degree_list = [1,2,3,4,5,6,7,8,9]
+    graphs_analise(1, degree_for_sender)
+    graphs_analise(2, degree_for_sender)
+    graphs_analise(3, degree_for_sender)
+    graphs_analise(4, degree_for_sender)
+    graphs_analise(5, degree_for_sender)
+    graphs_analise(6, degree_for_sender)
+    graphs_analise(7, degree_for_sender)
+    graphs_analise(8, degree_for_sender)
+    graphs_analise(9, degree_for_sender)
 
-    for degree in q_degree_list:
-
-        graphs_analise(degree, degree_for_sender)
-
-    logging.info('Функция анализа завершена')
+    print('Функция анализа завершена')
