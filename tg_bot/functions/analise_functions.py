@@ -19,6 +19,8 @@ def sending(degree, degree_for_sender):
 
             logging.info(f'ПРОБЛЕМЫ С ID {id_one}')
             logging.info(f'Ошибка: {exception}')
+            delete_from_db_for_id(id_one)
+            continue
 
     logging.info(f'Выполнил рассылку уровня {degree}')
 
