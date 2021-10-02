@@ -5,8 +5,7 @@ from keyboards import *
 from config import *
 import logging
 
-logging.basicConfig(filename = 'logs.log',  filemode='w', level = logging.INFO, format = ' %(asctime)s - %(levelname)s - %(message)s', encoding = "UTF-8", datefmt='%d-%b-%y %H:%M:%S')
-
+logging.basicConfig(filename = 'logs.log',  filemode='w', level = logging.INFO, format = '%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
 # функция добавления пользователя в рассылку
 def insert_into_db(id, q_degree):

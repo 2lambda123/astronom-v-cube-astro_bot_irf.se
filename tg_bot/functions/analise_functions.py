@@ -5,7 +5,7 @@ from config import *
 from bot_vars import *
 import logging
 
-logging.basicConfig(filename = 'logs.log',  filemode='w', level = logging.INFO, format = ' %(asctime)s - %(levelname)s - %(message)s', encoding = "UTF-8", datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(filename = 'logs.log',  filemode='w', level = logging.INFO, format = '%(asctime)s - %(levelname)s - %(message)s', datefmt = '%d-%b-%y %H:%M:%S')
 
 def sending(degree, degree_for_sender):
 
