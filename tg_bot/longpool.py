@@ -122,7 +122,7 @@ def send_text(message):
 
     elif message.text.lower() in ['/stop', 'стоп', emojize(":cross_mark: стоп :cross_mark:")]:
 
-        delete_from_db_for_id(message.chat.id)
+        delete_from_db_for_id(message.chat.id, False)
 
     elif message.text.lower() == 'primary':
 

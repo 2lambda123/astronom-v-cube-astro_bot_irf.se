@@ -4,8 +4,6 @@ from config import *
 import telebot
 import logging
 
-logging.basicConfig(filename = 'logs.log',  filemode='w', level = logging.INFO, format = '%(asctime)s - %(levelname)s - %(message)s', encoding = "UTF-8")
-
 bot = telebot.TeleBot(main_token)
 
 def send(user_id, msg, keyboard):

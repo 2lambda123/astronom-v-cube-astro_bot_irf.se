@@ -1,8 +1,11 @@
+from functions.sending_functions import *
 import psycopg2
 from psycopg2 import Error
-from functions.sending_functions import *
 from keyboards import *
 from config import *
+import logging
+
+logging.basicConfig(filename = 'logs.log',  filemode='w', level = logging.INFO, format = ' %(asctime)s - %(levelname)s - %(message)s', encoding = "UTF-8", datefmt='%d-%b-%y %H:%M:%S')
 
 
 # функция добавления пользователя в рассылку
@@ -60,7 +63,7 @@ def delete_from_db(id, q_degree):
 
 
 # функция отключения пользователя от базы данных
-def delete_from_db_for_id(id):
+def delete_from_db_for_id(id, block):
     try:
         # Подключение к существующей базе данных
         connection = psycopg2.connect(user = user, password = password, host = host, port = port, database = database)
@@ -72,8 +75,10 @@ def delete_from_db_for_id(id):
         delete_query = f" DELETE FROM tg_users WHERE id = {id} "
         cursor.execute(delete_query)
         connection.commit()
-        print("Запись успешно удалена")
-        send(id, 'Вы исключены из рассылки! Больше вы не будете получать уведомления', standart_keyboard)
+        logging.info(f'Записи о {id} успешно удалены')
+
+        if block == False:
+            send(id, 'Вы исключены из рассылки! Больше вы не будете получать уведомления', standart_keyboard)
 
     except (Exception, Error) as error:
         print("Ошибка при работе с PostgreSQL", error)
