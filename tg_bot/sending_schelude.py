@@ -7,12 +7,9 @@ from threading import Thread
 
 logging.info('Рассылка запущена...')
 
-schedule.every().hour.at(":01").do(analise_sender)
-schedule.every().hour.at(":16").do(analise_sender)
-schedule.every().hour.at(":31").do(analise_sender)
-schedule.every().hour.at(":46").do(analise_sender)
+schedule.every(1).minutes.do(analise_sender)
 
 def job_sending():
     while True:
         schedule.run_pending()
-        time.sleep(30)
+        time.sleep(2)

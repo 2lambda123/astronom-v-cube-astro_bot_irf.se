@@ -8,7 +8,7 @@ import urllib
 from keyboards import *
 import logging
 
-logging.basicConfig(filename = 'logs.log',  filemode='w', level = logging.INFO, format = ' %(asctime)s - %(levelname)s - %(message)s', encoding = "UTF-8", datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(filename = 'logs.log',  filemode='a', level = logging.INFO, format = ' %(asctime)s - %(levelname)s - %(message)s', encoding = "UTF-8", datefmt='%d-%b-%y %H:%M:%S')
 
 bot = telebot.TeleBot(main_token)
 
@@ -20,7 +20,7 @@ def subscribe(message):
 
     send(message.from_user.id, 'Какой уровень Q вас интересует? (Узнать уровень Q для вашей широты можно, написав мне слово "Уровни")', subscribe_keyboard)
 
-    bot.register_next_step_handler(message, subscribe_get_degree)  # следующий шаг – функция get_name
+    bot.register_next_step_handler(message, subscribe_get_degree)
 
 def subscribe_get_degree(message):
 
@@ -29,32 +29,30 @@ def subscribe_get_degree(message):
 
     elif message.text.lower() in [emojize(":counterclockwise_arrows_button: в начало :counterclockwise_arrows_button:")]:
 
-        send(message.chat.id, f'Текущий уровень Q - {graphs_analise_now()}', standart_keyboard)
+        send(message.chat.id, f'Текущий уровень q - {graphs_analise_now()}', standart_keyboard)
 
     else:
 
         q_degree = emojize_decryption(message.text)
-        insert_into_db(message.from_user.id, q_degree)
+        
+        try:
+            insert_into_db(message.from_user.id, q_degree)
+            send(id, 'Вы добавлены в рассылку! Теперь вы будете получать уведомления, если график достигнет или превысит значение q, которое вы указали', standart_keyboard)   
+        except:
+            send(id, 'Произошла ошибка! Вероятно, вы уже подписаны на данный уровень q', standart_keyboard)
 
 
 @bot.message_handler(func = lambda message: message.text.lower() in ["/unsubscribe", "отписаться", emojize(":bell_with_slash: отписаться :bell_with_slash:")])
 
 def unsubscribe(message):
 
-    send(message.from_user.id, 'Про какой уровень Q вам больше не интересно получать информацию? (Узнать уровень Q для вашей широты можно, написав мне слово "Уровни")', subscribe_keyboard)
-
-    bot.register_next_step_handler(message, unsubscribe_get_degree)  # следующий шаг – функция get_name
-
-def unsubscribe_get_degree(message):
-
     if message.text.lower() in [emojize(":counterclockwise_arrows_button: в начало :counterclockwise_arrows_button:")]:
 
-        send(message.chat.id, f'Текущий уровень Q - {graphs_analise_now()}', standart_keyboard)
+        send(message.chat.id, f'Текущий уровень q - {graphs_analise_now()}', standart_keyboard)
 
     else:
 
-        q_degree = emojize_decryption(message.text)
-        delete_from_db(message.from_user.id, q_degree)
+        delete_from_db(message.from_user.id, False)
 
 
 @bot.message_handler(func = lambda message: message.text.lower() in ["/bugreport", "помощь", emojize(":warning: баг-репорт :warning:"), "багрепорт", "баг-репорт"])
@@ -122,7 +120,7 @@ def send_text(message):
 
     elif message.text.lower() in ['/stop', 'стоп', emojize(":cross_mark: стоп :cross_mark:")]:
 
-        delete_from_db_for_id(message.chat.id, False)
+        delete_from_db(message.chat.id, False)
 
     elif message.text.lower() == 'primary':
 
