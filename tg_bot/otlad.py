@@ -1,5 +1,4 @@
 import psycopg2
-from config import * 
 """ connection = psycopg2.connect(user = user, password = password, host = host, port = port, database = database) """
 
 connection = psycopg2.connect(user = 'postgres', password = 'postgres', host = 'localhost', port = '5432', database = 'astro_bot_irf.se')
