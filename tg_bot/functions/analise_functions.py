@@ -135,13 +135,4 @@ def analise_sender():
 
     logging.info('Функция анализа завершена')
 
-""" def sending(degree, degree_for_sender):
-
-    list_id = search_into_db(degree)
-
-    for id_one in list_id:
-
-        send(id_one, emojize(f':red_exclamation_mark:Внимание! Значение q - {degree_for_sender}:red_exclamation_mark:'), standart_keyboard)
-
-    logging.info(f'Выполнил рассылку уровня {degree}') """
 
