@@ -1,7 +1,7 @@
 import requests
 import numpy as np
 url = "https://www2.irf.se/maggraphs/rt.txt"
-r = requests.get(url)
+r = requests.get(url, timeout=60)
 data = r.text
 minute_data = str(data[-33855:])
 х_deviation = []
